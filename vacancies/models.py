@@ -1,9 +1,9 @@
 from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+
 from vacancies.config import Config
 from vacancies.data import *
-from vacancies.static import *
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -47,12 +47,13 @@ class Speciality(db.Model):
     vacancies = db.relationship("Vacancy", back_populates="speciality")
 
 
-#db.create_all()
+db.create_all()
 
 
 #for vacancy in jobs:
-#    vacancies = Vacancy(title=vacancy["title"], description=vacancy["desc"], salary_min=vacancy["salary_from"], salary_max=vacancy["salary_to"],
-#                        published_at = vacancy["posted"], speciality_code=vacancy["cat"], company_name=vacancy["company"])
+#    vacancies = Vacancy(title=vacancy["title"], description=vacancy["desc"], salary_min=vacancy["salary_from"],
+#                        salary_max=vacancy["salary_to"], published_at = vacancy["posted"],
+#                        speciality_code=vacancy["cat"], company_name=vacancy["company"])
 #    db.session.add(vacancies)
 
 #for c in companies:
@@ -62,9 +63,6 @@ class Speciality(db.Model):
 #for s in specialties:
 #    spec = Speciality(code=s["code"], title=s["title"], picture="/static/check.png")
 #    db.session.add(spec)
-
-
-
 
 
 db.session.commit()

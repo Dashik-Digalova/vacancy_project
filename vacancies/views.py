@@ -1,14 +1,11 @@
-from flask import abort, flash, session, redirect, request, render_template
-
 import locale
-from datetime import datetime
 
-from vacancies import app, db
+from flask import abort, render_template
+
 from vacancies.models import *
 from vacancies.forms import *
 
 locale.setlocale(locale.LC_ALL, 'ru_RU.UTF-8')
-
 
 
 @app.route("/")
