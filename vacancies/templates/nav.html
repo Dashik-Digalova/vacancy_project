@@ -1,0 +1,24 @@
+{% set links = [{"title":"Вакансии","link":"/vacancies/"},{"title":"Компании","link":"/companies/"},{"title":"О проекте","link":"/about/"}] %}
+
+<header class="container mt-3">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <img src="/static/logo.jpeg" class="mx-auto d-block mw-100" width="40"><a class="navbar-brand mr-4" href="/">Джунманджи</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
+        <ul class="navbar-nav col-10">
+          {% for link in links %}
+          <li class="nav-item">
+            <a class="nav-link {% if request.path == link.link %}active{% endif %}" href="{{ link.link }}">{{ link.title }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+        <ul class="navbar-nav col-2 justify-content-end">
+          <li class="nav-item active">
+            <a href="#" class="nav-link font-weight-bold">Вход</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+  </header>
