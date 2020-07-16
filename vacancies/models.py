@@ -1,17 +1,9 @@
-from flask import Flask
-from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.hybrid import hybrid_property
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from vacancies.config import Config
-from vacancies.data import *
 
-app = Flask(__name__)
-app.config.from_object(Config)
-
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+db = SQLAlchemy()
 
 
 class Vacancy(db.Model):
@@ -93,7 +85,7 @@ class User(db.Model):
 
 
 
-db.create_all()
+#db.create_all()
 
 
 #for vacancy in jobs:
@@ -111,7 +103,7 @@ db.create_all()
 #    db.session.add(spec)
 
 
-db.session.commit()
+#db.session.commit()
 
 
 

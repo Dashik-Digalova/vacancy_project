@@ -2,8 +2,9 @@ import locale
 
 from flask import abort, render_template, request, redirect, session
 
-from vacancies.models import *
+from vacancies import app
 from vacancies.forms import *
+from vacancies.models import *
 
 locale.setlocale(locale.LC_ALL, 'ru_RU.UTF-8')
 

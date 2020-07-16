@@ -1,10 +1,9 @@
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 
-
 from vacancies.models import *
 
-admin = Admin(app)
+admin = Admin()
 
 admin.add_view(ModelView(User, db.session))
 admin.add_view(ModelView(Vacancy, db.session))
