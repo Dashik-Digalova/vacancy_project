@@ -104,7 +104,6 @@ def render_login():
             session["user_id"] = {
                 "id": user.id,
                 "username": user.username,
-                "role": user.role,
             }
             return redirect("/")
 
@@ -119,8 +118,7 @@ def render_register():
         first_name = form.first_name.data
         last_name = form.last_name.data
         password_hash = form.password.data
-        role = "user"
-        user = User(username=username, first_name=first_name, last_name=last_name, role=role)
+        user = User(username=username, first_name=first_name, last_name=last_name)
         user.password_hash = password_hash
         user_exists = User.query.filter_by(username=username).first()
         if user_exists:

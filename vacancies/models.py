@@ -62,7 +62,6 @@ class User(db.Model):
     first_name = db.Column(db.String, nullable=False)
     last_name = db.Column(db.String, nullable=False)
     _password_hash = db.Column(db.String, nullable=False)
-    role = db.Column(db.String)
     companies = db.relationship("Company", back_populates="owner")
     applications = db.relationship("Application", back_populates="user")
     user_app = db.Column(db.Integer, db.ForeignKey("applications.id"))
