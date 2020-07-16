@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<body>
+  <main class="container">
+    <div class="row">
+      <div class="col-8 col-lg-4 offset-2 offset-lg-4">
+        <form action="/register/" class="form-signin pt-5" method="POST">
+          {{ form.csrf_token }}
+          <div class="text-center mt-5 b-1">
+
+            <h1 class="h3 mb-3 font-weight-normal">Джунманджи</h1>
+            <p class="h5 font-weight-light">Создайте аккаунт</p>
+          </div>
+          <div class="mt-5 form-label-group">
+            <p class="text-muted">Логин</p>
+            <p class="alert-warning">{{ error_msg }}</p>
+            {% for err in form.username.errors %}
+              <p class="alert-warning">{{ err }}</p>
+            {% endfor %}
+            {{ form.username(class = "form-control", autofocus=true, required=true) }}
+            {{ form.label }}
+          </div>
+
+          <div class="mt-3 form-label-group">
+            <p class="text-muted">Имя</p>
+            {% for err in form.first_name.errors %}
+              <p class="alert-warning">{{ err }}</p>
+            {% endfor %}
+            {{ form.first_name(class = "form-control", autofocus=true, required=true) }}
+            {{ form.label }}
+          </div>
+
+          <div class="mt-3 form-label-group">
+            <p class="text-muted">Фамилия</p>
+            {% for err in form.last_name.errors %}
+              <p class="alert-warning">{{ err }}</p>
+            {% endfor %}
+            {{ form.last_name(class = "form-control", autofocus=true, required=true) }}
+            {{ form.label }}
+          </div>
+
+          <div class="mt-3 form-label-group">
+            <p class="text-muted"> Пароль</p>
+            {% for err in form.password.errors %}
+              <p class="alert-warning">{{ err }}</p>
+            {% endfor %}
+            {{ form.password(class = "form-control", autofocus=true, required=true) }}
+            {{ form.label }}
+          </div>
+          <div class="mt-3 form-label-group">
+            <p class="text-muted"> Пароль еще раз</p>
+            {% for err in form.confirm_password.errors %}
+              <p class="alert-warning">{{ err }}</p>
+            {% endfor %}
+            {{ form.confirm_password(class = "form-control", autofocus=true, required=true) }}
+            {{ form.label }}
+          </div>
+          <div class="checkbox mb-3"></div>
+          <button class="btn btn-primary btn-lg btn-block" type="submit">Зарегистрироваться</button>
+        </form>
+
+         <div class="mt-4 text-center"><p>Есть аккаунт? <a href="/login">Войдите!</a></p></div>
+
+
+
+      </div>
+    </div>
+  </main>
+</body>
+{% endblock %}

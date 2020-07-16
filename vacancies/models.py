@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.ext.hybrid import hybrid_property
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from vacancies.config import Config
 from vacancies.data import *
@@ -23,8 +25,9 @@ class Vacancy(db.Model):
     salary_min = db.Column(db.String)
     salary_max = db.Column(db.String)
     published_at = db.Column(db.DateTime, nullable=False)
-    speciality_code = db.Column(db.String, db.ForeignKey("specialities.code"))
-    company_name = db.Column(db.String, db.ForeignKey("companies.name"))
+    speciality_code = db.Column(db.Integer, db.ForeignKey("specialities.id"))
+    company_name = db.Column(db.Integer, db.ForeignKey("companies.id"))
+    applications = db.relationship("Application", back_populates="vacancy")
 
 
 class Company(db.Model):
@@ -36,6 +39,8 @@ class Company(db.Model):
     description = db.Column(db.String)
     employee_count = db.Column(db.String)
     vacancies = db.relationship("Vacancy", back_populates="company")
+    owner = db.relationship("User", back_populates="companies")
+    owner_companies = db.Column(db.Integer, db.ForeignKey("users.id"))
 
 
 class Speciality(db.Model):
@@ -43,8 +48,49 @@ class Speciality(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String, nullable=False, unique=True)
     title = db.Column(db.String, nullable=False)
-    picture = db.Column(db.String, nullable=False)
+    picture = db.Column(db.String)
     vacancies = db.relationship("Vacancy", back_populates="speciality")
+
+
+class Application(db.Model):
+    __tablename__ = "applications"
+    id = db.Column(db.Integer, primary_key=True)
+    written_username = db.Column(db.String, nullable=False)
+    written_phone = db.Column(db.String, nullable=False)
+    written_cover_letter = db.Column(db.Text, nullable=False)
+    vacancy = db.relationship("Vacancy", back_populates="applications")
+    user = db.relationship("User", back_populates="applications")
+    vacancy_app = db.Column(db.Integer, db.ForeignKey("vacancies.id"))
+
+
+class User(db.Model):
+    __tablename__ = "users"
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String, nullable=False)
+    first_name = db.Column(db.String, nullable=False)
+    last_name = db.Column(db.String, nullable=False)
+    _password_hash = db.Column(db.String, nullable=False)
+    role = db.Column(db.String)
+    companies = db.relationship("Company", back_populates="owner")
+    applications = db.relationship("Application", back_populates="user")
+    user_app = db.Column(db.Integer, db.ForeignKey("applications.id"))
+
+    @hybrid_property
+    def password_hash(self):
+        # Запретим прямое обращение к паролю
+        raise AttributeError("Вам не нужно знать пароль!")
+
+    @password_hash.setter
+    def password_hash(self, password):
+        # Устанавливаем пароль через этот метод
+        self._password_hash = generate_password_hash(password)
+
+    def password_valid(self, password):
+        # Проверяем пароль через этот метод
+        # Функция check_password_hash превращает password в хеш и сравнивает с хранимым
+#        print(self._password_hash, password)
+        return check_password_hash(self._password_hash, password)
+
 
 
 db.create_all()

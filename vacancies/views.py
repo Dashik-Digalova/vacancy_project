@@ -1,6 +1,6 @@
 import locale
 
-from flask import abort, render_template
+from flask import abort, render_template, request, redirect, session
 
 from vacancies.models import *
 from vacancies.forms import *
@@ -50,13 +50,16 @@ def show_vacancies(code):
 @app.route("/companies/<int:company_id>/")
 def render_company_card(company_id):
     company = Company.query.get(company_id)
+    vacancies = list(db.session.query(Vacancy).filter(Vacancy.company_name == company.name))
     if company is None:
         abort(404)
-    return render_template("company.html", company=company)
+    return render_template("company.html", company=company, vacancies=vacancies)
 
 
 @app.route("/vacancies/<int:vacancy_id>/")
 def render_vacancy_page(vacancy_id):
+    form = ApplicationForm()
+
     vacancy = Vacancy.query.get(vacancy_id)
     company = Company.query.all()
     company_data = []
@@ -65,7 +68,75 @@ def render_vacancy_page(vacancy_id):
             company_data.append(i)
     if vacancy is None:
         abort(404)
-    return render_template("vacancy.html", vacancy=vacancy, company_data=company_data)
+    return render_template("vacancy.html", vacancy=vacancy, company_data=company_data, form=form)
+
+
+@app.route("/vacancies/<int:vacancy_id>/send")
+def send_request(vacancy_id):
+    return render_template("sent.html")
+
+
+@app.route("/mycompany/")
+def render_company():
+    render_template("company-edit.html")
+
+
+@app.route("/mycompany/vacancies/")
+def show_company_vacancies():
+    return render_template("vacancy-list.html")
+
+
+@app.route("/mycompany/vacancies/<int:vacancy_id>/")
+def show_my_vacancy(vacancy_id):
+    return render_template("vacancy-edit.html")
+
+
+@app.route("/login/", methods=["GET", "POST"])
+def render_login():
+    if session.get("user_id"):
+        return redirect("/")
+    form = AuthForm()
+    if request.method == "POST":
+        username = form.username.data
+        user = User.query.filter_by(username=username).first()
+        if user and user.password_valid(form.password.data):
+            session["user_id"] = {
+                "id": user.id,
+                "username": user.username,
+                "role": user.role,
+            }
+            return redirect("/")
+
+    return render_template("login.html", form=form)
+
+
+@app.route("/register/", methods=["GET", "POST"])
+def render_register():
+    form = RegisterForm()
+    if request.method == "POST" and form.validate_on_submit():
+        username = form.username.data
+        first_name = form.first_name.data
+        last_name = form.last_name.data
+        password_hash = form.password.data
+        role = "user"
+        user = User(username=username, first_name=first_name, last_name=last_name, role=role)
+        user.password_hash = password_hash
+        user_exists = User.query.filter_by(username=username).first()
+        if user_exists:
+            error_msg = 'Такой пользователь существует'
+            return render_template("register.html", error_msg=error_msg, form=form)
+        db.session.add(user)
+        db.session.commit()
+        return redirect('/')
+    else:
+        return render_template("register.html", form=form)
+
+
+@app.route("/logout/")
+def render_logout():
+    if session.get("user_id"):
+        session.pop("user_id")
+    return redirect("/")
 
 
 @app.errorhandler(404)
@@ -79,7 +150,8 @@ def words_ending(value, s="вакансия, вакансии, вакансий"
     s = s.split(",")
     if number % 10 == 1 and number % 100 != 11:
         return s[0]
-    elif number % 10 == 2 and number % 100 != 12 or number % 10 == 3 and number % 100 != 13 or number % 10 == 4 and number % 100 != 14:
+    elif number % 10 == 2 and number % 100 != 12 or number % 10 == 3 and number % 100 != 13 or number % 10 == 4 \
+            and number % 100 != 14:
         return s[1]
     else:
         return s[2]
