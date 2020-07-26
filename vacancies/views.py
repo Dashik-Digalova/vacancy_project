@@ -57,29 +57,58 @@ def render_company_card(company_id):
     return render_template("company.html", company=company, vacancies=vacancies)
 
 
-@app.route("/vacancies/<int:vacancy_id>/")
+@app.route("/vacancies/<int:vacancy_id>/", methods=["GET", "POST"])
 def render_vacancy_page(vacancy_id):
     form = ApplicationForm()
-
     vacancy = Vacancy.query.get(vacancy_id)
-    company = Company.query.all()
-    company_data = []
-    for i in company:
-        if i.name == vacancy.company_name:
-            company_data.append(i)
+    company = list(db.session.query(Company).filter(Company.name == vacancy.company_name))
+    if request.method == "POST" and form.validate_on_submit():
+        name = form.written_username.data
+        phone = form.written_phone.data
+        cover_letter = form.written_cover_letter.data
+        vacancy_response = Application(written_username=name, written_phone=phone, written_cover_letter=cover_letter,
+                                       vacancy_app=vacancy_id)
+        db.session.add(vacancy_response)
+        db.session.commit()
+        return render_template("sent.html", vacancy_id=vacancy_id)
     if vacancy is None:
         abort(404)
-    return render_template("vacancy.html", vacancy=vacancy, company_data=company_data, form=form)
+    return render_template("vacancy.html", vacancy=vacancy, company_data=company, form=form)
 
 
-@app.route("/vacancies/<int:vacancy_id>/send")
+@app.route("/vacancies/<int:vacancy_id>/send/", methods=["GET", "POST"])
 def send_request(vacancy_id):
-    return render_template("sent.html")
+    return render_template("sent.html", vacancy_id=vacancy_id)
 
 
-@app.route("/mycompany/")
+@app.route("/mycompany/", methods=["GET", "POST"])
 def render_company():
-    render_template("company-edit.html")
+    company_owner = session["user_id"]
+    owner = User.query.get(company_owner["id"])
+    if owner is None:
+        return render_template("company-create.html")
+    form = CompanyForm(obj=owner.companies)
+
+    if request.method == "POST" and form.validate_on_submit():
+        form.populate_obj(owner.companies)
+        db.session.commit()
+        name = form.name.data
+        employee_count = form.employee_count.data
+        location = form.location.data
+        description = form.description.data
+        logo = form.logo.data
+        info = db.session.query(Company).update(
+            {"name": name, "employee_count": employee_count, "location": location,
+             "description": description, "logo": logo})
+        db.session.add(info)
+        db.session.commit()
+    for company_info in owner.companies:
+        form.name.data = company_info.name
+        form.employee_count.data = company_info.employee_count
+        form.location.data = company_info.location
+        form.description.data = company_info.description
+        form.logo.data = company_info.logo
+    return render_template("company-edit.html", form=form)
 
 
 @app.route("/mycompany/vacancies/")
@@ -154,6 +183,3 @@ def words_ending(value, s="вакансия, вакансии, вакансий"
         return s[1]
     else:
         return s[2]
-
-
-

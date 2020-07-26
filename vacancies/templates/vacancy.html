@@ -21,9 +21,11 @@
             <p class="m-0 pl-3">{{ vacancy.salary_min }} – {{ vacancy.salary_max }} Р</p>
           </div>
           <p class="mt-2">{{ vacancy.skills }}</p>
-          <p class="text-muted mb-4">{{ vacancy.company_name }} ({{ company_data.employee_count}}), {{ company_data.location }}</p>
+          {% for company in company_data %}
+          <p class="text-muted mb-4">{{ company.name }} ({{ company.employee_count}}), {{ company.location }}</p>
           <div style="line-height: 1.8;">
-            <p>{{company_data.description}}</p>
+            <p>{{company.description}}</p>
+            {% endfor %}
             <p><b>Мы предлагаем: </b><br>
               Оформление по ТК РФ<br>
               ДМС со стоматологией<br>
@@ -51,18 +53,28 @@
               Опыт работы в команде по Scrum
             </p>
           </div>
-          <form action="/echo" class="card mt-4 mb-3">
+          <form action="/vacancies/{{ vacancy.id }}/send/" class="card mt-4 mb-3" method="POST">
+            {{ form.csrf_token }}
             <div class="card-body mx-3">
               <p class="h5 mt-3 font-weight-normal">Отозваться на вакансию</p>
               <div class="form-group">
+                {% for err in form.written_username.errors %}
+              <p class="alert-warning">{{ err }}</p>
+            {% endfor %}
                 {{ form.written_username.label("Вас зовут") }}
                 {{ form.written_username(class = "form-control") }}
               </div>
               <div class="form-group">
+                {% for err in form.written_phone.errors %}
+              <p class="alert-warning">{{ err }}</p>
+            {% endfor %}
                 {{ form.written_phone.label("Ваш телефон") }}
-                {{ form.written_username(class = "form-control") }}
+                {{ form.written_phone(class = "form-control") }}
               </div>
               <div class="form-group">
+                {% for err in form.written_cover_letter.errors %}
+              <p class="alert-warning">{{ err }}</p>
+            {% endfor %}
                 {{ form.written_cover_letter.label("Сопроводительное письмо") }}
                 {{ form.written_cover_letter(cols="77", rows="8") }}
               </div>

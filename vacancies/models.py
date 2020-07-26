@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.hybrid import hybrid_property
 from werkzeug.security import generate_password_hash, check_password_hash
+from .data import *
 
 
 db = SQLAlchemy()
@@ -25,7 +26,7 @@ class Vacancy(db.Model):
 class Company(db.Model):
     __tablename__ = "companies"
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, nullable=False, unique=True)
+    name = db.Column(db.String, nullable=False)
     location = db.Column(db.String)
     logo = db.Column(db.String)
     description = db.Column(db.String)
@@ -103,11 +104,4 @@ class User(db.Model):
 
 
 #db.session.commit()
-
-
-
-
-
-
-
 
