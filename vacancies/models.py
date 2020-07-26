@@ -11,16 +11,15 @@ class Vacancy(db.Model):
     __tablename__ = "vacancies"
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String, nullable=False)
-    speciality = db.relationship("Speciality", back_populates="vacancies")
-    company = db.relationship("Company", back_populates="vacancies")
     skills = db.Column(db.String)
     description = db.Column(db.String, nullable=False)
     salary_min = db.Column(db.String)
     salary_max = db.Column(db.String)
     published_at = db.Column(db.DateTime, nullable=False)
+    speciality = db.relationship("Speciality", back_populates="vacancies")
+    company = db.relationship("Company", back_populates="vacancies")
     speciality_code = db.Column(db.Integer, db.ForeignKey("specialities.id"))
     company_name = db.Column(db.Integer, db.ForeignKey("companies.id"))
-    applications = db.relationship("Application", back_populates="vacancy")
 
 
 class Company(db.Model):
@@ -33,7 +32,7 @@ class Company(db.Model):
     employee_count = db.Column(db.String)
     vacancies = db.relationship("Vacancy", back_populates="company")
     owner = db.relationship("User", back_populates="companies")
-    owner_companies = db.Column(db.Integer, db.ForeignKey("users.id"))
+    companies_owner = db.Column(db.Integer, db.ForeignKey("users.id"))
 
 
 class Speciality(db.Model):
@@ -51,9 +50,11 @@ class Application(db.Model):
     written_username = db.Column(db.String, nullable=False)
     written_phone = db.Column(db.String, nullable=False)
     written_cover_letter = db.Column(db.Text, nullable=False)
-    vacancy = db.relationship("Vacancy", back_populates="applications")
-    user = db.relationship("User", back_populates="applications")
+    vacancy = db.relationship("Vacancy")
+    user = db.relationship("User")
     vacancy_app = db.Column(db.Integer, db.ForeignKey("vacancies.id"))
+    user_app = db.Column(db.Integer, db.ForeignKey("users.id"))
+
 
 
 class User(db.Model):
@@ -64,8 +65,6 @@ class User(db.Model):
     last_name = db.Column(db.String, nullable=False)
     _password_hash = db.Column(db.String, nullable=False)
     companies = db.relationship("Company", back_populates="owner")
-    applications = db.relationship("Application", back_populates="user")
-    user_app = db.Column(db.Integer, db.ForeignKey("applications.id"))
 
     @hybrid_property
     def password_hash(self):
@@ -84,24 +83,23 @@ class User(db.Model):
         return check_password_hash(self._password_hash, password)
 
 
-
-#db.create_all()
-
-
-#for vacancy in jobs:
-#    vacancies = Vacancy(title=vacancy["title"], description=vacancy["desc"], salary_min=vacancy["salary_from"],
-#                        salary_max=vacancy["salary_to"], published_at = vacancy["posted"],
-#                        speciality_code=vacancy["cat"], company_name=vacancy["company"])
-#    db.session.add(vacancies)
-
-#for c in companies:
-#    company=Company(name=c["title"])
-#    db.session.add(company)
-
-#for s in specialties:
-#    spec = Speciality(code=s["code"], title=s["title"], picture="/static/check.png")
-#    db.session.add(spec)
+db.create_all()
 
 
-#db.session.commit()
+for vacancy in jobs:
+    vacancies = Vacancy(title=vacancy["title"], description=vacancy["desc"], salary_min=vacancy["salary_from"],
+                        salary_max=vacancy["salary_to"], published_at = vacancy["posted"],
+                        speciality_code=vacancy["cat"], company_name=vacancy["company"])
+    db.session.add(vacancies)
+
+for c in companies:
+    company=Company(name=c["title"])
+    db.session.add(company)
+
+for s in specialties:
+    spec = Speciality(code=s["code"], title=s["title"], picture="/static/check.png")
+    db.session.add(spec)
+
+
+db.session.commit()
 
